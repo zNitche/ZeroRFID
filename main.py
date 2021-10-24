@@ -39,42 +39,45 @@ def write_rfid(reader, text):
 def main(opt):
     mode = opt.mode[0]
 
-    GPIO.cleanup()
-
     reader = RFID()
 
-    if mode == "c":
-        # print("Copying RFID card, waiting for first card...")
-        #
-        # id, text = read_rfid(reader)
-        #
-        # print("Card read, waiting for second card...")
-        #
-        # write_rfid(reader, text)
-        #
-        print("Done...")
+    try:
+        if mode == "c":
+            # print("Copying RFID card, waiting for first card...")
+            #
+            # id, text = read_rfid(reader)
+            #
+            # print("Card read, waiting for second card...")
+            #
+            # write_rfid(reader, text)
+            #
+            print("Done...")
 
-    elif mode == "r":
-        print("Reading RFID Card, waiting for card...")
+        elif mode == "r":
+            print("Reading RFID Card, waiting for card...")
 
-        read_rfid(reader)
+            read_rfid(reader)
 
-    elif mode == "w":
-        # text = input("Content > ")
-        #
-        # print("Waiting for RFID tag...")
-        #
-        # write_rfid(reader, text)
-        #
-        # print("Done...")
-        pass
+        elif mode == "w":
+            # text = input("Content > ")
+            #
+            # print("Waiting for RFID tag...")
+            #
+            # write_rfid(reader, text)
+            #
+            # print("Done...")
+            pass
 
-    else:
-        print("Unsupported mode...")
+        else:
+            print("Unsupported mode...")
+
+    except Exception as e:
+        print(e)
+
+    finally:
+        GPIO.cleanup()
 
     print("Cleaning up GPIO...")
-
-    GPIO.cleanup()
 
     print("Done...")
 
