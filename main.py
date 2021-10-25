@@ -2,6 +2,7 @@ import argparse
 import RPi.GPIO as GPIO
 from pirc522 import RFID
 import time
+import os
 from consts import Consts
 
 
@@ -50,8 +51,60 @@ def read_rfid(reader):
     return rfid_data
 
 
-def write_rfid(reader, text):
-    reader.write(text)
+def write_rfid(reader, file_name):
+    with open(file_name, "r") as file_data:
+        data = file_data.readlines()
+
+    parsed_data = parse_txt_data_file(data)
+
+    util = reader.util()
+
+    while True:
+        print("Writing RFID Card, waiting for card...")
+
+        reader.wait_for_tag()
+
+        (error, data) = reader.request()
+        if not error:
+            print("\nDetected")
+
+            (error, uid) = reader.anticoll()
+            if not error:
+                print(f"Card read UID: {str(uid[0])} {str(uid[1])} {str(uid[2])} {str(uid[3])}")
+
+                util.set_tag(uid)
+
+                util.auth(reader.auth_a, [0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF])
+
+                for block_id, block_data in enumerate(parsed_data):
+                    error = util.do_auth(block_id)
+                    id = block_id + 1
+
+                    if not error:
+                        if (id == 1 and not Consts.WRITABLE_UID) or id % Consts.TOTAL_BLOCKS_PER_SECTOR == 0:
+                            print(f"Passing block no. {block_id}")
+                        else:
+                            bd = [int(hex(b), base=16) for b in block_data]
+                            reader.write(block_id, bd)
+
+                            print(f"Writing block no. {block_id}")
+                    else:
+                        print(f"Error while reading block no. {block_id}")
+
+                util.deauth()
+
+                break
+
+        time.sleep(1)
+
+
+def parse_txt_data_file(data):
+    parsed_data = []
+
+    for block_id_data in data:
+        parsed_data.append([int(b) for b in block_id_data.split()])
+
+    return parsed_data
 
 
 def main(opt):
@@ -98,14 +151,13 @@ def main(opt):
                     dump_file.write("\n")
 
         elif mode == "w":
-            # text = input("Content > ")
-            #
-            # print("Waiting for RFID tag...")
-            #
-            # write_rfid(reader, text)
-            #
-            # print("Done...")
-            pass
+            print("Writing RFID Card data from txt file...")
+            file_name = input("filename > ")
+
+            if os.path.exists(file_name):
+                write_rfid(reader, file_name)
+            else:
+                print(f"File {file_name} doesnt exist...")
 
         else:
             print("Unsupported mode...")
