@@ -19,6 +19,17 @@ def main(opt):
 
             print(f"Diffs at blocks no. {diffs}")
 
+        elif mode == "chf":
+            print("Checking RFID card...")
+            file_name = input("filename > ")
+
+            if os.path.exists(file_name):
+                diffs = utils.check_diff_rfid_txt(reader, file_name)
+
+                print(f"Diffs at blocks no. {diffs}")
+            else:
+                print(f"File {file_name} doesnt exist...")
+
         elif mode == "r":
             rfid_data = utils.read_rfid(reader)
             block_id = 0
@@ -69,7 +80,8 @@ def main(opt):
 
 def get_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--mode', nargs='+', type=str, default='r', help='RFID mode (r = read, w = write, ch = check, d = dump to txt)')
+    parser.add_argument('--mode', nargs='+', type=str, default='r', help='RFID mode (r = read, w = write,'
+                                                                         ' ch = check, d = dump to txt, chf = check with txt)')
     opt = parser.parse_args()
 
     return opt

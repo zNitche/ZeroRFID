@@ -38,5 +38,6 @@ which is located at it's last block - block 3. This block contains keys and acce
 ##### Modes
 1. `r` - reads and displays card data.
 2. `w` - writes data from txt file to card.
-3. `ch` - checks if two cards have same content.
+3. `ch` - checks if two cards have the same content.
 4. `d` - dumps card data to txt file.
+5. `chf` - checks if card data and txt file have the same content

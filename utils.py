@@ -48,10 +48,7 @@ def read_rfid(reader):
 
 
 def write_rfid(reader, file_name):
-    with open(file_name, "r") as file_data:
-        data = file_data.readlines()
-
-    parsed_data = parse_txt_data_file(data)
+    parsed_data = parse_txt_data_file(file_name)
 
     util = reader.util()
 
@@ -127,7 +124,42 @@ def check_diff_rfid(reader):
     return diffs
 
 
-def parse_txt_data_file(data):
+def check_diff_rfid_txt(reader, file_name):
+    block_id = 0
+    diffs = []
+
+    print("Processing card...")
+    rfid_data_1 = read_rfid(reader)
+    print("Done...")
+
+    print(f"Parsing data txt file {file_name}...")
+    rfid_data_2 = parse_txt_data_file(file_name)
+    print("Done...")
+
+    for sector in range(Consts.TOTAL_SECTORS_COUNT):
+        for block in range(Consts.TOTAL_BLOCKS_PER_SECTOR):
+            if block_id + 1 % Consts.TOTAL_BLOCKS_PER_SECTOR != 0:
+                f_data = rfid_data_1[block_id]
+                s_data = rfid_data_2[block_id]
+
+                f_data.sort()
+                s_data.sort()
+
+                if f_data == s_data:
+                    print(f"Block no. {block_id} match")
+                else:
+                    print(f"Block no. {block_id} diff")
+                    diffs.append(block_id)
+
+            block_id += 1
+
+    return diffs
+
+
+def parse_txt_data_file(file_name):
+    with open(file_name, "r") as file_data:
+        data = file_data.readlines()
+
     parsed_data = []
 
     for block_id_data in data:
