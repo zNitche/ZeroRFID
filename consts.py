@@ -3,3 +3,4 @@ class Consts:
     TOTAL_BLOCKS_PER_SECTOR = 4
     TOTAL_BYTES_PER_BLOCK = 16
     WRITABLE_UID = False
+    WRITE_SECTOR_TRAILER = False

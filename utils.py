@@ -74,7 +74,8 @@ def write_rfid(reader, file_name):
                     id = block_id + 1
 
                     if not error:
-                        if (id == 1 and not Consts.WRITABLE_UID) or id % Consts.TOTAL_BLOCKS_PER_SECTOR == 0:
+                        if (id == 1 and not Consts.WRITABLE_UID) or (id % Consts.TOTAL_BLOCKS_PER_SECTOR == 0 and
+                                                                     not Consts.WRITE_SECTOR_TRAILER):
                             print(f"Passing block no. {block_id}")
                         else:
                             bd = [int(hex(b), base=16) for b in block_data]
