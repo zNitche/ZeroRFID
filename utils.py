@@ -138,18 +138,17 @@ def check_diff_rfid_txt(reader, file_name):
 
     for sector in range(Consts.TOTAL_SECTORS_COUNT):
         for block in range(Consts.TOTAL_BLOCKS_PER_SECTOR):
-            if block_id + 1 % Consts.TOTAL_BLOCKS_PER_SECTOR != 0:
-                f_data = rfid_data_1[block_id]
-                s_data = rfid_data_2[block_id]
+            f_data = rfid_data_1[block_id]
+            s_data = rfid_data_2[block_id]
 
-                f_data.sort()
-                s_data.sort()
+            f_data.sort()
+            s_data.sort()
 
-                if f_data == s_data:
-                    print(f"Block no. {block_id} match")
-                else:
-                    print(f"Block no. {block_id} diff")
-                    diffs.append(block_id)
+            if f_data == s_data:
+                print(f"Block no. {block_id} match")
+            else:
+                print(f"Block no. {block_id} diff")
+                diffs.append(block_id)
 
             block_id += 1
 

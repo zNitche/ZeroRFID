@@ -51,7 +51,7 @@ def main(opt):
                     seq = ""
 
                     for data in block_data:
-                        seq += " ".join(str(data)) + " "
+                        seq += str(data) + " "
 
                     dump_file.write(seq)
                     dump_file.write("\n")
