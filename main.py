@@ -7,6 +7,7 @@ from consts import Consts
 
 def read_rfid(reader):
     util = reader.util()
+    rfid_data = []
 
     while True:
         reader.wait_for_tag()
@@ -24,28 +25,25 @@ def read_rfid(reader):
                 # Key B for read only
                 util.auth(reader.auth_b, [0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF])
 
-                util.dump()
+                blocks_count = Consts.TOTAL_SECTORS_COUNT * Consts.TOTAL_BLOCKS_PER_SECTOR
 
-                block_id = 0
+                for block_id in range(blocks_count):
+                    error = util.do_auth(block_id)
 
-                for sector in range(Consts.TOTAL_SECTORS_COUNT):
-                    for block in range(Consts.TOTAL_BLOCKS_PER_SECTOR):
-                        error = util.do_auth(block_id)
+                    if not error:
+                        (error, data) = reader.read(block_id)
 
-                        if not error:
-                            (error, data) = reader.read(block_id)
-
-                            print(f"S{sector}B{block} {str(data)}")
-                        else:
-                            print(f"Error reading block no {block_id} of sector {sector}")
-
-                        block_id += 1
+                        rfid_data.append(data)
+                    else:
+                        rfid_data.append([])
 
                 util.deauth()
 
                 break
 
         time.sleep(1)
+
+    return rfid_data
 
 
 def write_rfid(reader, text):
@@ -72,7 +70,14 @@ def main(opt):
         elif mode == "r":
             print("Reading RFID Card, waiting for card...")
 
-            read_rfid(reader)
+            rfid_data = read_rfid(reader)
+            block_id = 0
+
+            for sector in range(Consts.TOTAL_SECTORS_COUNT):
+                for block in range(Consts.TOTAL_BLOCKS_PER_SECTOR):
+                    print(f"S{sector}B{block} {rfid_data[block_id]}")
+
+                    block_id += 1
 
         elif mode == "w":
             # text = input("Content > ")
