@@ -10,6 +10,8 @@ def read_rfid(reader):
     rfid_data = []
 
     while True:
+        print("Reading RFID Card, waiting for card...")
+
         reader.wait_for_tag()
 
         (error, data) = reader.request()
@@ -34,8 +36,10 @@ def read_rfid(reader):
                         (error, data) = reader.read(block_id)
 
                         rfid_data.append(data)
+                        print(f"Reading block no. {block_id}")
                     else:
                         rfid_data.append([])
+                        print(f"Error while reading block no. {block_id}")
 
                 util.deauth()
 
@@ -68,8 +72,6 @@ def main(opt):
             print("Done...")
 
         elif mode == "r":
-            print("Reading RFID Card, waiting for card...")
-
             rfid_data = read_rfid(reader)
             block_id = 0
 
@@ -78,6 +80,22 @@ def main(opt):
                     print(f"S{sector}B{block} {rfid_data[block_id]}")
 
                     block_id += 1
+
+        elif mode == "d":
+            print("Dumping RFID Card data to txt file...")
+            file_name = input("filename > ")
+
+            rfid_data = read_rfid(reader)
+
+            with open(file_name, "w") as dump_file:
+                for block_data in rfid_data:
+                    seq = ""
+
+                    for data in block_data:
+                        seq += " ".join(str(data)) + " "
+
+                    dump_file.write(seq)
+                    dump_file.write("\n")
 
         elif mode == "w":
             # text = input("Content > ")
@@ -104,7 +122,7 @@ def main(opt):
 
 def get_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--mode', nargs='+', type=str, default='r', help='RFID mode (r = read, w = write, c = copy)')
+    parser.add_argument('--mode', nargs='+', type=str, default='r', help='RFID mode (r = read, w = write, c = copy, d = dump to txt)')
     opt = parser.parse_args()
 
     return opt
