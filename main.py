@@ -2,29 +2,45 @@ import argparse
 import RPi.GPIO as GPIO
 from pirc522 import RFID
 import time
+from consts import Consts
 
 
 def read_rfid(reader):
     util = reader.util()
 
     while True:
-        # Wait for tag
         reader.wait_for_tag()
 
-        # Request tag
         (error, data) = reader.request()
         if not error:
             print("\nDetected")
 
             (error, uid) = reader.anticoll()
             if not error:
-                # Print UID
-                print("Card read UID: " + str(uid[0]) + "," + str(uid[1]) + "," + str(uid[2]) + "," + str(uid[3]))
+                print(f"Card read UID: {str(uid[0])} {str(uid[1])} {str(uid[2])} {str(uid[3])}")
 
                 util.set_tag(uid)
+
+                # Key B for read only
                 util.auth(reader.auth_b, [0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF])
 
                 util.dump()
+
+                block_id = 0
+
+                for sector in range(Consts.TOTAL_SECTORS_COUNT):
+                    for block in range(Consts.TOTAL_BLOCKS_PER_SECTOR):
+                        error = util.do_auth(block_id)
+
+                        if not error:
+                            (error, data) = reader.read(block_id)
+
+                            print(f"S{sector}B{block} {str(data)}")
+                        else:
+                            print(f"Error reading block no {block_id} of sector {sector}")
+
+                        block_id += 1
+
                 util.deauth()
 
                 break
@@ -75,9 +91,8 @@ def main(opt):
         print(e)
 
     finally:
+        print("Cleaning up GPIO...")
         GPIO.cleanup()
-
-    print("Cleaning up GPIO...")
 
     print("Done...")
 
