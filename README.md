@@ -30,7 +30,7 @@ from the second sector - sector 1, and so on. You should **not write** to first 
 which is located at it's last block - block 3. This block contains keys and access bits for corresponding sector. For more info, look at page 10 of the datasheet.
 
 ##### Tool Setup
-1. clone this repo
+1. clone this repo.
 2. install dependencies `pip3 install -r requirements.txt`.
 3. run `python3 main.py --help` to see all available modes.
 4. run `python3 main.py --mode <mode>` to run tool in `<mode> `mode.
@@ -41,3 +41,10 @@ which is located at it's last block - block 3. This block contains keys and acce
 3. `ch` - checks if two cards have the same content.
 4. `d` - dumps card data to txt file.
 5. `chf` - checks if card data and txt file have the same content
+
+##### Config
+- `TOTAL_SECTORS_COUNT` - Card sectors count.
+- `TOTAL_BLOCKS_PER_SECTOR` - Blocks per sector.
+- `TOTAL_BYTES_PER_BLOCK` - Bytes per block.
+- `WRITABLE_UID` - If card allows writing to first block (block no. 0)
+- `WRITE_SECTOR_TRAILER` - If write sector trailers (last block of every sector)
