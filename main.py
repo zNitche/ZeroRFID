@@ -98,6 +98,39 @@ def write_rfid(reader, file_name):
         time.sleep(1)
 
 
+def check_diff_rfid(reader):
+    block_id = 0
+    diffs = []
+
+    print("Processing first card...")
+    rfid_data_1 = read_rfid(reader)
+    print("Done...")
+
+    time.sleep(1)
+
+    print("Processing second card...")
+    rfid_data_2 = read_rfid(reader)
+    print("Done...")
+
+    for sector in range(Consts.TOTAL_SECTORS_COUNT):
+        for block in range(Consts.TOTAL_BLOCKS_PER_SECTOR):
+            f_data = rfid_data_1[block_id]
+            s_data = rfid_data_2[block_id]
+
+            f_data.sort()
+            s_data.sort()
+
+            if f_data == s_data:
+                print(f"Block no. {block_id} match")
+            else:
+                print(f"Block no. {block_id} diff")
+                diffs.append(block_id)
+
+            block_id += 1
+
+    return diffs
+
+
 def parse_txt_data_file(data):
     parsed_data = []
 
@@ -113,16 +146,12 @@ def main(opt):
     reader = RFID()
 
     try:
-        if mode == "c":
-            # print("Copying RFID card, waiting for first card...")
-            #
-            # id, text = read_rfid(reader)
-            #
-            # print("Card read, waiting for second card...")
-            #
-            # write_rfid(reader, text)
-            #
-            print("Done...")
+        if mode == "ch":
+            print("Checking RFID cards...")
+
+            diffs = check_diff_rfid(reader)
+
+            print(f"Diffs at blocks no. {diffs}")
 
         elif mode == "r":
             rfid_data = read_rfid(reader)
@@ -174,7 +203,7 @@ def main(opt):
 
 def get_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--mode', nargs='+', type=str, default='r', help='RFID mode (r = read, w = write, c = copy, d = dump to txt)')
+    parser.add_argument('--mode', nargs='+', type=str, default='r', help='RFID mode (r = read, w = write, ch = check, d = dump to txt)')
     opt = parser.parse_args()
 
     return opt
